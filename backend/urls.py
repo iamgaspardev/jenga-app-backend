@@ -1,6 +1,6 @@
 from django.urls import path
 
-from backend.views.setups import location, project, task
+from backend.views.setups import equipment, location, project, task
 from .views.auth_views import login, register
 
 
@@ -10,4 +10,5 @@ urlpatterns =[
     path('location', location, name='location'),
     path('project', project, name='project'),
     path('task', task, name='task'),
+    path('equipment', equipment, name='equipment'),
 ]

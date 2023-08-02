@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from .models.user_models import Users
-from .models.setups_models import Projects, Tasks , Locations
+from .models.setups_models import Equipments, Projects, Tasks , Locations
 # Register your models here.
-admin.site.register([Users,Locations,Tasks,Projects])
+admin.site.register([Users,Locations,Tasks,Projects, Equipments])

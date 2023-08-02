@@ -4,7 +4,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from backend.models.setups_models import Locations, Projects, Tasks
+from backend.models.setups_models import Equipments, Locations, Projects, Tasks
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -121,4 +121,41 @@ def task(request):
     else:
         return JsonResponse({'message': 'Unauthorized', 'status': 401}, status=401)
     
-     
+@api_view(['POST','GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def equipment(request):
+    if request.user.is_authenticated:
+        # User is authenticated. You can access the authenticated user using request.user
+        user = request.user
+
+        if request.method == 'POST':
+            name = request.POST.get('name')
+            description = request.POST.get('description')
+            task_id = request.POST.get('task_id')
+
+
+            equipments = Equipments(name=name, description=description, task_id=task_id)
+
+            equipments.save();
+            return JsonResponse({'message': 'equipment saved successfully'})
+        
+        elif request.method == 'GET':
+           equipments = Equipments.objects.all()
+
+           data = [
+            {
+                'id': equipment.id,
+                'name': equipment.name,
+                'description': equipment.description,
+                'task_id': equipment.task_id
+            }
+            for equipment in equipments
+            ]
+           return JsonResponse({'message': 'Successful', 'data': data, 'status': 200}, status=200)
+    
+        
+        
+    else:
+        return JsonResponse({'message': 'Unauthorized', 'status': 401}, status=401)
