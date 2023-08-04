@@ -39,7 +39,6 @@ def login(request):
 
 
 @csrf_exempt
-
 def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)

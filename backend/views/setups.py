@@ -1,4 +1,5 @@
 # Authenticated views.
+from django.forms import model_to_dict
 from django.http import JsonResponse
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
@@ -21,7 +22,7 @@ def project(request):
             description = request.POST.get('description')
 
 
-            projects = Projects(name=name, description=description)
+            projects = Projects(project_name=name, project_description=description)
 
             projects.save();
             return JsonResponse({'message': 'Project saved successfully'})
@@ -32,8 +33,8 @@ def project(request):
           data = [
             {
                 'id': project.id,
-                'name': project.name,
-                'description': project.description,
+                'name': project.project_name,
+                'description': project.project_description,
             }
             for project in projects
             ]
@@ -55,22 +56,24 @@ def location(request):
             name = request.POST.get('name')
             description = request.POST.get('description')
             project_id = request.POST.get('project_id')
+            budget = request.POST.get('budget')
 
 
-            locations = Locations(name=name, description=description, project_id=project_id)
+            locations = Locations(location_name=name, location_description=description, project_id_id=project_id, budget=budget)
 
             locations.save();
             return JsonResponse({'message': 'location saved successfully'})
         
         elif request.method == 'GET':
-           locations = Locations.objects.all()
+           locations = Locations.objects.select_related('project_id')
 
            data = [
             {
                 'id': location.id,
-                'name': location.name,
-                'description': location.description,
-                'project_id': location.project_id
+                'name': location.location_name,
+                'description': location.location_description,
+                'budget' : location.budget,
+                'project': model_to_dict(location.project_id),
             }
             for location in locations
             ]
@@ -97,7 +100,7 @@ def task(request):
             project_id = request.POST.get('project_id')
 
 
-            tasks = Tasks(name=name, description=description, project_id=project_id)
+            tasks = Tasks(task_name=name, task_description=description, project_id_id=project_id)
 
             tasks.save();
             return JsonResponse({'message': 'task saved successfully'})
@@ -108,9 +111,9 @@ def task(request):
            data = [
             {
                 'id': task.id,
-                'name': task.name,
-                'description': task.description,
-                'project_id': task.project_id
+                'name': task.task_name,
+                'description': task.task_description,
+                'project': model_to_dict(task.project_id)
             }
             for task in tasks
             ]
@@ -136,7 +139,7 @@ def equipment(request):
             task_id = request.POST.get('task_id')
 
 
-            equipments = Equipments(name=name, description=description, task_id=task_id)
+            equipments = Equipments(equipment_name=name, equipment_description=description, task_id_id=task_id)
 
             equipments.save();
             return JsonResponse({'message': 'equipment saved successfully'})
@@ -147,9 +150,9 @@ def equipment(request):
            data = [
             {
                 'id': equipment.id,
-                'name': equipment.name,
-                'description': equipment.description,
-                'task_id': equipment.task_id
+                'name': equipment.equipment_name,
+                'description': equipment.equipment_description,
+                'task': model_to_dict(equipment.task_id)
             }
             for equipment in equipments
             ]

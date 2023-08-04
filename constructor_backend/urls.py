@@ -19,8 +19,8 @@ from django.urls import include, path
 from django.contrib.auth.views import LoginView
 
 urlpatterns = [
-    path('api/',include('django.contrib.auth.urls')),
-    path('api/',include('backend.urls')),
+    path('',include('django.contrib.auth.urls')),
+    path('',include('backend.urls')),
     path('admin/', admin.site.urls),
     path('accounts/login/', LoginView.as_view(), name='login'),
 ]

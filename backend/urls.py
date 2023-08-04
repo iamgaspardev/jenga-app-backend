@@ -6,13 +6,13 @@ from .views.auth_views import login, register
 
 
 urlpatterns =[
-    path('user', register, name='user'),
-    path('sign-in', login, name='sign-in'),
-    path('location', location, name='location'),
-    path('project', project, name='project'),
-    path('task', task, name='task'),
-    path('equipment', equipment, name='equipment'),
-    path('task-per-location', task_per_project, name='task-per-location'),
-    path('workers', workers, name='workers'),
-    path('requirements', requirements, name='requirements'),
+    path('api/user', register, name='user'),
+    path('api/sign-in', login, name='sign-in'),
+    path('api/location', location, name='location'),
+    path('api/project', project, name='project'),
+    path('api/task', task, name='task'),
+    path('api/equipment', equipment, name='equipment'),
+    path('api/task-per-location', task_per_project, name='task-per-location'),
+    path('api/workers', workers, name='workers'),
+    path('api/requirements', requirements, name='requirements'),
 ]
