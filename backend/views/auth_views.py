@@ -3,39 +3,76 @@ from django.contrib.auth import get_user_model, authenticate, login as auth_logi
 from django.contrib.auth.models import auth
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework.decorators import api_view
 from backend.forms import UserRegistrationForm
-
+from rest_framework import status
 
 @csrf_exempt
+# @api_view(['POST'])
 def login(request):
     if request.method == 'POST':
-        username = request.POST.get('username')  # Use 'username' to receive the email from the request
+        username = request.POST.get('username')
         password = request.POST.get('password')
-       
-        user = authenticate(request, email=username, password=password)
+
+        # Check if the username is an email or a phone number
+        if '@' in username:
+            user = authenticate(request, username=username, password=password)
+        else:
+            user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            auth_login(request,user)
-            # Generate token
+            auth_login(request, user)
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
-            # token, created = Token.objects.get_or_create(user=user)
-            return JsonResponse({
+
+            user_data = {
+                'id': user.id,
+                'firstname': user.first_name,
+                'email': user.email,
+                'phone': user.phone,
+                'user_role': user.user_role,
+            }
+
+            response_data = {
                 'message': 'Successful',
-                'user': {
-                    'id': user.id,
-                    'firstname': user.first_name,
-                    'email': user.email,
-                    'phone': user.phone,
-                    'user_role': user.user_role,
-                },
+                'user': user_data,
                 'access_token': access_token,
-                'status': 200,
-            }, status=200)
+                'status': status.HTTP_200_OK,
+            }
+            return JsonResponse(response_data, status=status.HTTP_200_OK)
          
         else:
-            return JsonResponse({'error': 'Wrong Email or Password', 'status': 400}, status=400)
+            error_response = {'error': 'Wrong Email or Password', 'status': status.HTTP_400_BAD_REQUEST}
+            return JsonResponse(error_response, status=status.HTTP_400_BAD_REQUEST)
+
+# def login(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')  # Use 'username' to receive the email from the request
+#         password = request.POST.get('password')
+       
+#         user = authenticate(request, email=username, password=password)
+
+#         if user is not None:
+#             auth_login(request,user)
+#             # Generate token
+#             refresh = RefreshToken.for_user(user)
+#             access_token = str(refresh.access_token)
+#             # token, created = Token.objects.get_or_create(user=user)
+#             return JsonResponse({
+#                 'message': 'Successful',
+#                 'user': {
+#                     'id': user.id,
+#                     'firstname': user.first_name,
+#                     'email': user.email,
+#                     'phone': user.phone,
+#                     'user_role': user.user_role,
+#                 },
+#                 'access_token': access_token,
+#                 'status': 200,
+#             }, status=200)
+         
+#         else:
+#             return JsonResponse({'error': 'Wrong Email or Password', 'status': 400}, status=400)
 
 
 @csrf_exempt

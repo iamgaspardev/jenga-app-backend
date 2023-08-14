@@ -1,6 +1,7 @@
 # Authenticated views.
 from django.forms import model_to_dict
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
@@ -11,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
-@api_view(['POST','GET'])
+@api_view(['POST','GET','DELETE'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 @csrf_exempt
@@ -43,7 +44,7 @@ def project(request):
         return JsonResponse({'message': 'Unauthorized', 'status': 401}, status=401)
     
     
-@api_view(['POST','GET'])
+@api_view(['POST','GET','DELETE'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])    
 @csrf_exempt
@@ -54,29 +55,44 @@ def location(request):
 
         if request.method == 'POST':
             name = request.POST.get('name')
-            description = request.POST.get('description')
-            project_id = request.POST.get('project_id')
+            leader_name = request.POST.get('leader_name')
+            supervisor = request.POST.get('supervisor')
+            project_category = request.POST.get('project_category')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
             budget = request.POST.get('budget')
 
 
-            locations = Locations(location_name=name, location_description=description, project_id_id=project_id, budget=budget)
-
-            locations.save();
+            locations = Locations(location_name=name, leader_name=leader_name, supervisor=supervisor, budget=budget, project_category=project_category, start_date=start_date,end_date=end_date)
+            print(locations)
+            locations.save()
             return JsonResponse({'message': 'location saved successfully'})
         
         elif request.method == 'GET':
-           locations = Locations.objects.select_related('project_id')
+           locations = Locations.objects.all()
 
            data = [
             {
                 'id': location.id,
                 'name': location.location_name,
-                'description': location.location_description,
+                'leader_name': location.leader_name,
                 'budget' : location.budget,
-                'project': model_to_dict(location.project_id),
+                'supervisor': location.supervisor,
+                'project_category': location.project_category,
+                'start_date': location.start_date,
+                'end_date': location.end_date,
+                # 'project': model_to_dict(location.project_id),
+
             }
             for location in locations
             ]
+           return JsonResponse({'message': 'Successful', 'data': data, 'status': 200}, status=200)
+        
+        elif request.method == 'DELETE':
+           locations = Locations.objects.all()
+           pk = request.POST.get('pk')
+           locations = get_object_or_404(Locations, pk=pk)
+           locations.delete()
            return JsonResponse({'message': 'Successful', 'data': data, 'status': 200}, status=200)
 
 
@@ -84,6 +100,22 @@ def location(request):
     else:
         return JsonResponse({'message': 'Unauthorized', 'status': 401}, status=401)
 
+
+@api_view(['POST','GET','DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def location_delete(request, pk):
+    
+    if request.user.is_authenticated:
+        if request.method == 'DELETE':
+           locations = get_object_or_404(Locations, id=pk)
+           locations.delete()
+           return JsonResponse({'message': 'Successful Deleted', 'status': 200}, status=200)
+
+    else:
+        return JsonResponse({'message': 'Unauthorized', 'status': 401}, status=401)
+    
 
 @api_view(['POST','GET'])
 @authentication_classes([JWTAuthentication])

@@ -14,9 +14,15 @@ class Projects(models.Model):
     
 class Locations(models.Model):
     location_name = models.TextField()
-    location_description = models.TextField()
+    # location_description = models.TextField()
+    leader_name = models.TextField()
+    supervisor = models.TextField()
     budget = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    project_id = models.ForeignKey(Projects, on_delete=models.CASCADE, related_name='locations')
+    # project_id = models.ForeignKey(Projects, on_delete=models.CASCADE, related_name='locations')
+    project_category = models.TextField()
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField(default=timezone.now)
+     
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 
@@ -34,7 +40,6 @@ class Tasks(models.Model):
         return self.task_name
         
 class Equipments(models.Model):
-    task_id = models.TextField()
     equipment_name = models.TextField()
     equipment_description = models.TextField() 
     task_id = models.ForeignKey(Tasks, on_delete=models.CASCADE, related_name='equipments')
